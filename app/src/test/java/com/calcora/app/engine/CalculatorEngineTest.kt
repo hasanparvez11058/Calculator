@@ -17,7 +17,7 @@ class CalculatorEngineTest {
     @Test fun percentagesFollowCalculatorRules() { assertEquals("220", result("200+10%")); assertEquals("180", result("200-10%")); assertEquals("5", result("50*10%")); assertEquals("0.5", result("50%")) }
     @Test fun divideByZeroHasFriendlyMessage() { assertEquals("Can't divide by zero", error("1/0").message) }
     @Test fun invalidAndUndefinedAreDistinguished() { assertEquals("Invalid input", error("sqrt(-1)").message); assertEquals("Undefined", error("tan(90)").message); assertTrue(engine.evaluate("2+").isError()) }
-    @Test fun groupingAndLargeNumbers() { assertEquals("1,000,000", result("1000000")); assertEquals("100000000000000000000", result("100000000000000000000")) }
+    @Test fun groupingAndLargeNumbers() { assertEquals("1,000,000", result("1000000")); assertEquals("100,000,000,000,000,000,000", result("100000000000000000000")) }
     @Test fun randomizedDecimalAddition() {
         val random = java.util.Random(42)
         repeat(500) {
