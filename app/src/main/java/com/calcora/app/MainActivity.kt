@@ -129,6 +129,15 @@ private fun CalculatorAppScreen(
         if (expression.isBlank()) null else (engine.evaluate(expression, angle) as? EvalResult.Success)?.display
     }
     fun put(text: String) { expression += text; error = null; saveState() }
+    fun appendOperator(op: String) {
+        if (expression.isBlank()) { if (op == "-") expression = "-"; return }
+        val last = expression.last()
+        if (last in "+-*/^") {
+            if (op == "-" && last in "*/^") expression += op else expression = expression.dropLast(1) + op
+        } else expression += op
+        error = null
+    }
+
     fun press(key: String) {
         try { (context as? android.app.Activity)?.window?.decorView?.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) } catch (_: Exception) { }
         when (key) {
@@ -160,15 +169,6 @@ private fun CalculatorAppScreen(
         }
         saveState()
     }
-    fun appendOperator(op: String) {
-        if (expression.isBlank()) { if (op == "-") expression = "-"; return }
-        val last = expression.last()
-        if (last in "+-*/^") {
-            if (op == "-" && last in "*/^") expression += op else expression = expression.dropLast(1) + op
-        } else expression += op
-        error = null
-    }
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
