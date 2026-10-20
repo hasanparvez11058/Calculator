@@ -296,6 +296,7 @@ private fun ConverterScreen(modifier: Modifier = Modifier) {
     var from by remember { mutableStateOf("Meter") }
     var to by remember { mutableStateOf("Kilometer") }
     var input by remember { mutableStateOf("1") }
+    val categories = listOf("Length", "Weight", "Temperature", "Area", "Volume", "Speed", "Time", "Data")
     val units = when (category) {
         "Length" -> listOf("Meter", "Kilometer", "Centimeter", "Millimeter", "Mile", "Yard", "Foot", "Inch")
         "Weight" -> listOf("Kilogram", "Gram", "Milligram", "Pound", "Ounce", "Metric ton")
@@ -308,15 +309,88 @@ private fun ConverterScreen(modifier: Modifier = Modifier) {
     }
     LaunchedEffect(category) { from = units.first(); to = units.getOrElse(1) { units.first() } }
     val converted = remember(input, from, to, category) { convertUnits(input.toDoubleOrNull(), from, to, category) }
-    Column(modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("Unit converter", style = MaterialTheme.typography.headlineMedium)
-        Text("Works offline", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { listOf("Length", "Weight", "Temperature", "Area", "Volume", "Speed", "Time", "Data").forEach { c -> FilterChip(selected = category == c, onClick = { category = c }, label = { Text(c) }) } }
-        OutlinedTextField(value = input, onValueChange = { input = it }, label = { Text("Value") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.fillMaxWidth())
-        UnitSelector("From", from, units) { from = it }
-        Button(onClick = { val tmp = from; from = to; to = tmp }, modifier = Modifier.align(Alignment.CenterHorizontally)) { Text("⇅ Swap units") }
-        UnitSelector("To", to, units) { to = it }
-        Text(converted?.let { formatNumber(it) } ?: "Enter a valid number", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary)
+
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+                Box(Modifier.size(52.dp), contentAlignment = Alignment.Center) {
+                    Text("⇄", color = MaterialTheme.colorScheme.onPrimaryContainer, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("Unit converter", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text("Convert everyday measurements", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.secondaryContainer) {
+                Text("OFFLINE", modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            Text("CATEGORY", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+            Row(
+                modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                categories.forEach { c ->
+                    FilterChip(
+                        selected = category == c,
+                        onClick = { category = c },
+                        label = { Text(c, maxLines = 1, fontWeight = if (category == c) FontWeight.SemiBold else FontWeight.Normal) },
+                        shape = RoundedCornerShape(14.dp),
+                        leadingIcon = if (category == c) ({ Text("✓", fontWeight = FontWeight.Bold) }) else null
+                    )
+                }
+            }
+        }
+
+        Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp) {
+            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("VALUE", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it.filter { ch -> ch.isDigit() || ch == '.' || ch == '-' || ch == '+' }.take(32) },
+                    label = { Text("Enter a value") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    trailingIcon = { Text(category, modifier = Modifier.padding(end = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelSmall) }
+                )
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("CONVERSION", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
+            Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surface, tonalElevation = 1.dp) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    UnitSelector("FROM", from, units) { from = it }
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        FilledTonalButton(
+                            onClick = { val tmp = from; from = to; to = tmp },
+                            shape = RoundedCornerShape(14.dp),
+                            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp)
+                        ) { Text("⇅  Swap units", fontWeight = FontWeight.SemiBold) }
+                    }
+                    UnitSelector("TO", to, units) { to = it }
+                }
+            }
+        }
+
+        Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("CONVERTED RESULT", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f), fontWeight = FontWeight.Bold)
+                Text(converted?.let { formatNumber(it) } ?: "Enter a valid number", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer, maxLines = 2)
+                Text(to, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f))
+                if (converted != null) Text("$input $from = \${formatNumber(converted)} $to", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f))
+            }
+        }
+        Spacer(Modifier.height(8.dp))
     }
 }
 
@@ -324,7 +398,13 @@ private fun ConverterScreen(modifier: Modifier = Modifier) {
 private fun UnitSelector(label: String, selected: String, units: List<String>, onSelect: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box {
-        OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) { Text("$label: $selected", modifier = Modifier.weight(1f), textAlign = TextAlign.Start); Text("⌄") }
+        OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(selected, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+            }
+            Text("⌄", fontSize = 22.sp, color = MaterialTheme.colorScheme.primary)
+        }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             units.forEach { u -> DropdownMenuItem(text = { Text(u) }, onClick = { onSelect(u); expanded = false }) }
         }
