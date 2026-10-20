@@ -40,7 +40,9 @@ jobs:
       - name: Prepare APK
         run: |
           mkdir -p release
-          cp app/build/outputs/apk/debug/app-debug.apk "release/Calcora-${GITHUB_REF_NAME}-debug.apk"
+          TAG_NAME="${GITHUB_REF_NAME}"
+          if [ -z "$TAG_NAME" ]; then TAG_NAME="v1.0.0"; fi
+          cp app/build/outputs/apk/debug/app-debug.apk "release/Calcora-${TAG_NAME}-debug.apk"
           sha256sum release/Calcora-*-debug.apk > release/SHA256SUMS.txt
 
       - name: Publish GitHub Release
