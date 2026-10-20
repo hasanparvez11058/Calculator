@@ -148,10 +148,10 @@ private fun CalculatorAppScreen(
                 expression = when (v) { is EvalResult.Success -> v.value.negate().stripTrailingZeros().toPlainString(); else -> if (expression.startsWith("-")) expression.drop(1) else "-$expression" }
             }
             "( )" -> expression += if (expression.count { it == '(' } > expression.count { it == ')' }) ")" else "("
-            "×" -> operator("*")
-            "÷" -> operator("/")
-            "−" -> operator("-")
-            "+", "%" -> if (key == "%") expression += "%" else operator("+")
+            "×" -> appendOperator("*")
+            "÷" -> appendOperator("/")
+            "−" -> appendOperator("-")
+            "+", "%" -> if (key == "%") expression += "%" else appendOperator("+")
             else -> {
                 if (expression == result && result != "0" && key.firstOrNull()?.isDigit() == true) expression = ""
                 expression += when (key) { "π" -> "pi"; "√" -> "sqrt("; "x²" -> "^2"; "xʸ" -> "^"; "n!" -> "!"; "1/x" -> "recip("; "|x|" -> "abs("; "EXP" -> "e^"; "rand" -> "random"; else -> key }
@@ -160,7 +160,7 @@ private fun CalculatorAppScreen(
         }
         saveState()
     }
-    fun operator(op: String) {
+    fun appendOperator(op: String) {
         if (expression.isBlank()) { if (op == "-") expression = "-"; return }
         val last = expression.last()
         if (last in "+-*/^") {
