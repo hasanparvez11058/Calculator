@@ -24,7 +24,7 @@ class CalculatorEngineTest {
             val a = random.nextInt(2_000_001) - 1_000_000
             val b = random.nextInt(2_000_001) - 1_000_000
             val actual = engine.evaluate("$a+$b") as EvalResult.Success
-            assertEquals(BigDecimal.valueOf(a.toLong() + b.toLong()), actual.value)
+            assertEquals(0, BigDecimal.valueOf(a.toLong() + b.toLong()).compareTo(actual.value))
         }
     }
     private fun EvalResult.isError() = this is EvalResult.Error
