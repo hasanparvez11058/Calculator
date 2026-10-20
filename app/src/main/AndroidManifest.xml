@@ -3,6 +3,7 @@
     <application
         android:allowBackup="false"
         android:label="Calcora"
+        android:icon="@drawable/calcora_launcher"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
