@@ -213,7 +213,7 @@ private fun CalculatorAppScreen(
                             Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                                 row.forEach { key -> FilledTonalButton(onClick = { if (key == "sin(" || key == "cos(" || key == "tan(" || key == "ln(" || key == "log(" || key.endsWith("(")) put(key) else press(key) }, modifier = Modifier.weight(1f).fillMaxHeight(), contentPadding = PaddingValues(horizontal = 2.dp)) { Text(key, fontSize = 12.sp, maxLines = 1) } }
                             }
-                        })
+                        }
                     }
                 }
                 val rows = listOf(listOf("C", "( )", "%", "÷"), listOf("7", "8", "9", "×"), listOf("4", "5", "6", "−"), listOf("1", "2", "3", "+"), listOf("+/−", "0", ".", "="))
